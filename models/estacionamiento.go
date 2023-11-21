@@ -6,40 +6,42 @@ import (
 	"sync"
 )
 
+
+
 // Definición de la estructura Estacionamiento
 type Estacionamiento struct {
-	espacios      chan int      // Un canal para gestionar los espacios del estacionamiento
-	puerta        *sync.Mutex   // Un mutex (cerrojo) para gestionar el acceso a la puerta del estacionamiento
-	espaciosArray [20]bool     // Un array de 20 booleanos para representar la disponibilidad de espacios en el estacionamiento
+	cajones      chan int      // Un canal para gestionar los espacios del estacionamiento
+	entrada        *sync.Mutex   // Un mutex (cerrojo) para gestionar el acceso a la puerta del estacionamiento
+	cajonesArray [20]bool     // Un array de 20 booleanos para representar la disponibilidad de espacios en el estacionamiento
 }
 
 // Función NewEstacionamiento crea una nueva instancia de Estacionamiento
-func NewEstacionamiento(espacios chan int, puertaMu *sync.Mutex) *Estacionamiento {
+func NewEstacionamiento(cajones chan int, entradaMu *sync.Mutex) *Estacionamiento {
 	return &Estacionamiento{
-		espacios:      espacios,
-		puerta:        puertaMu,
-		espaciosArray: [20]bool{},
+		cajones:      cajones,
+		entrada:        entradaMu,
+		cajonesArray: [20]bool{},
 	}
 }
 
 // Función GetEspacios devuelve el canal para gestionar los espacios del estacionamiento
-func (p *Estacionamiento) GetEspacios() chan int {
-	return p.espacios
+func (p *Estacionamiento) GetCajones() chan int {
+	return p.cajones
 }
 
 // Función GetPuertaMu devuelve el mutex (cerrojo) para gestionar la puerta del estacionamiento
-func (p *Estacionamiento) GetPuertaMu() *sync.Mutex {
-	return p.puerta
+func (p *Estacionamiento) GetEntradaMu() *sync.Mutex {
+	return p.entrada
 }
 
 // Función GetEspaciosArray devuelve el array que representa la disponibilidad de espacios en el estacionamiento
-func (p *Estacionamiento) GetEspaciosArray() [20]bool {
-	return p.espaciosArray
+func (p *Estacionamiento) GetCajonesArray() [20]bool {
+	return p.cajonesArray
 }
 
 // Función SetEspaciosArray establece el array que representa la disponibilidad de espacios en el estacionamiento
-func (p *Estacionamiento) SetEspaciosArray(espaciosArray [20]bool) {
-	p.espaciosArray = espaciosArray
+func (p *Estacionamiento) SetCajonesArray(cajonesArray [20]bool) {
+	p.cajonesArray = cajonesArray
 }
 
 // Función ColaSalida agrega una imagen al contenedor y refresca la interfaz gráfica para representar un automóvil en cola de salida

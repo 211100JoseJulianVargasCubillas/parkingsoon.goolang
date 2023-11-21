@@ -10,7 +10,7 @@ import (
 )
 
 // Definición de la estructura Auto
-type Auto struct {
+type Carro struct {
     id              int
     tiempoLim       time.Duration
     espacioAsignado int
@@ -20,12 +20,12 @@ type Auto struct {
 }
 
 // Función NewAuto crea una nueva instancia de Auto
-func NewAuto(id int) *Auto {
+func NewAuto(id int) *Carro {
     // Carga imágenes desde archivos y establece campos iniciales
     imagenEntrada := canvas.NewImageFromURI(storage.NewFileURI("./assets/auto_entrada.png"))
     imagenEspera := canvas.NewImageFromURI(storage.NewFileURI("./assets/auto_espera.png"))
     imagenSalida := canvas.NewImageFromURI(storage.NewFileURI("./assets/auto_salida.png"))
-    return &Auto{
+    return &Carro{
         id:              id,
         tiempoLim:       time.Duration(rand.Intn(50)+50) * time.Second,
         espacioAsignado: 0,
@@ -36,11 +36,11 @@ func NewAuto(id int) *Auto {
 }
 
 // Función Entrar permite que el automóvil entre al estacionamiento
-func (a *Auto) Entrar(p *Estacionamiento, contenedor *fyne.Container) {
-    p.GetEspacios() <- a.GetId() // Intenta adquirir un espacio en el estacionamiento
-    p.GetPuertaMu().Lock() // Bloquea la puerta de entrada
+func (a *Carro) Entrar(p *Estacionamiento, contenedor *fyne.Container) {
+    p.GetCajones() <- a.GetId() // Intenta adquirir un espacio en el estacionamiento
+    p.GetEntradaMu().Lock() // Bloquea la puerta de entrada
 
-    espacios := p.GetEspaciosArray()
+    espacios := p.GetCajonesArray()
     const (
         columnasPorGrupo = 5
         espacioEntreGrupos = 22
@@ -72,21 +72,21 @@ func (a *Auto) Entrar(p *Estacionamiento, contenedor *fyne.Container) {
         }
     }
 
-    p.SetEspaciosArray(espacios)
-    p.GetPuertaMu().Unlock() // Desbloquea la puerta
+    p.SetCajonesArray(espacios)
+    p.GetEntradaMu().Unlock() // Desbloquea la puerta
     contenedor.Refresh() // Actualiza el contenedor de la interfaz gráfica
 }
 
 // Función Salir permite que el automóvil salga del estacionamiento
-func (a *Auto) Salir(p *Estacionamiento, contenedor *fyne.Container) {
-    <-p.GetEspacios() // Libera el espacio en el estacionamiento
-    p.GetPuertaMu().Lock() // Bloquea la puerta
+func (a *Carro) Salir(p *Estacionamiento, contenedor *fyne.Container) {
+    <-p.GetCajones() // Libera el espacio en el estacionamiento
+    p.GetEntradaMu().Lock() // Bloquea la puerta
 
-    spacesArray := p.GetEspaciosArray()
+    spacesArray := p.GetCajonesArray()
     spacesArray[a.espacioAsignado] = false
-    p.SetEspaciosArray(spacesArray)
+    p.SetCajonesArray(spacesArray)
 
-    p.GetPuertaMu().Unlock() // Desbloquea la puerta
+    p.GetEntradaMu().Unlock() // Desbloquea la puerta
 
     contenedor.Remove(a.imagenEspera)
     a.imagenSalida.Resize(fyne.NewSize(30, 50))
@@ -106,7 +106,7 @@ func (a *Auto) Salir(p *Estacionamiento, contenedor *fyne.Container) {
 }
 
 // Función Iniciar inicia el proceso del automóvil en el estacionamiento
-func (a *Auto) Iniciar(p *Estacionamiento, contenedor *fyne.Container, wg *sync.WaitGroup) {
+func (a *Carro) Iniciar(p *Estacionamiento, contenedor *fyne.Container, wg *sync.WaitGroup) {
     a.Avanzar(9) // Realiza una animación de avance
 
     a.Entrar(p, contenedor) // El automóvil entra en el estacionamiento
@@ -122,7 +122,7 @@ func (a *Auto) Iniciar(p *Estacionamiento, contenedor *fyne.Container, wg *sync.
 }
 
 // Función Avanzar realiza una animación de avance del automóvil
-func (a *Auto) Avanzar(pasos int) {
+func (a *Carro) Avanzar(pasos int) {
     for i := 0; i < pasos; i++ {
         a.imagenEntrada.Move(fyne.NewPos(a.imagenEntrada.Position().X, a.imagenEntrada.Position().Y+20))
         time.Sleep(time.Millisecond * 200)
@@ -130,11 +130,11 @@ func (a *Auto) Avanzar(pasos int) {
 }
 
 // Función GetId devuelve el identificador del automóvil
-func (a *Auto) GetId() int {
+func (a *Carro) GetId() int {
     return a.id
 }
 
 // Función GetImagenEntrada devuelve la imagen de entrada del automóvil
-func (a *Auto) GetImagenEntrada() *canvas.Image {
+func (a *Carro) GetImagenEntrada() *canvas.Image {
     return a.imagenEntrada
 }
